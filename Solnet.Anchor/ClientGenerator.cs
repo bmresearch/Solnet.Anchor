@@ -1022,7 +1022,6 @@ namespace Solnet.Anchor
         private MemberDeclarationSyntax GenerateGetAccount()
         {
             List<StatementSyntax> body = new();
-            var asd = 1;
 
             body.Add(LocalDeclarationStatement(VariableDeclaration(IdentifierName("var"),
                 SingletonSeparatedList(VariableDeclarator(Identifier("res"), null, EqualsValueClause(
