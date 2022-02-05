@@ -9,12 +9,7 @@ using Solnet.Anchor.Models.Types.Base;
 using Solnet.Anchor.Models.Types.Enum;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.Loader;
-using System.Text;
-using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Solnet.Anchor
@@ -86,17 +81,17 @@ namespace Solnet.Anchor
                 UsingDirective(IdentifierName("System")),
                 UsingDirective(IdentifierName("System.Collections.Generic")),
                 UsingDirective(IdentifierName("System.Threading.Tasks")),
-                UsingDirective(IdentifierName(idl.Name.ToPascalCase())),
-                UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Program")),
                 UsingDirective(IdentifierName("Solnet")),
-                UsingDirective(IdentifierName("Solnet.Anchor.Client")),
+                UsingDirective(IdentifierName("Solnet.Programs.Abstract")),
+                UsingDirective(IdentifierName("Solnet.Programs.Utilities")),
                 UsingDirective(IdentifierName("Solnet.Rpc")),
-                UsingDirective(IdentifierName("Solnet.Wallet")),
-                UsingDirective(IdentifierName("Solnet.Rpc.Models")),
+                UsingDirective(IdentifierName("Solnet.Rpc.Builders")),
                 UsingDirective(IdentifierName("Solnet.Rpc.Core.Http")),
                 UsingDirective(IdentifierName("Solnet.Rpc.Core.Sockets")),
-                UsingDirective(IdentifierName("Solnet.Rpc.Builders")),
-                UsingDirective(IdentifierName("Solnet.Programs.Utilities")),
+                UsingDirective(IdentifierName("Solnet.Rpc.Models")),
+                UsingDirective(IdentifierName("Solnet.Wallet")),
+                UsingDirective(IdentifierName(idl.Name.ToPascalCase())),
+                UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Program")),
             };
 
             if (idl.Accounts != null && idl.Accounts.Length > 0)
@@ -341,7 +336,7 @@ namespace Solnet.Anchor
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName("data"),
-                            IdentifierName("ReadString")),
+                            IdentifierName("GetString")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
                                 Argument(IdentifierName("offset")),
