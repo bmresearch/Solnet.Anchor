@@ -17,6 +17,8 @@ namespace Solnet.Anchor.Models.Accounts
 
         public bool IsSigner { get; set; }
 
+        public IdlPda Pda { get; set; }
+
         public string GenerateAccountSerialization(string objectName)
         {
             StringBuilder sb = new();

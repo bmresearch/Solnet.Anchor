@@ -88,7 +88,7 @@ namespace Solnet.Anchor
                 UsingDirective(IdentifierName("Solnet.Rpc.Builders")),
                 UsingDirective(IdentifierName("Solnet.Rpc.Core.Http")),
                 UsingDirective(IdentifierName("Solnet.Rpc.Core.Sockets")),
-                UsingDirective(IdentifierName("Solnet.Rpc.Models")),
+                //UsingDirective(IdentifierName("Solnet.Rpc.Models")),
                 UsingDirective(IdentifierName("Solnet.Wallet")),
                 UsingDirective(IdentifierName(idl.Name.ToPascalCase())),
                 UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Program")),
@@ -146,10 +146,14 @@ namespace Solnet.Anchor
                 }
                 else if (acc is IdlAccount singleAcc)
                 {
+
+
                     initExpressions.Add(InvocationExpression(
                         MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("AccountMeta"),
+                        QualifiedName(QualifiedName(QualifiedName(IdentifierName("Solnet"), IdentifierName("Rpc")),
+                        IdentifierName("Models")),
+                IdentifierName("AccountMeta")),
                         IdentifierName(singleAcc.IsMut ? "Writable" : "ReadOnly")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -176,22 +180,22 @@ namespace Solnet.Anchor
                 parameters.Add(Parameter(List<AttributeListSyntax>(), TokenList(), GetTypeSyntax(arg.Type), Identifier(arg.Name), null));
             }
 
-            List<ExpressionSyntax> initExprs = new();
-
-            initExprs.AddRange(GenerateKeysInitExpressions(instr.Accounts, IdentifierName("accounts")));
+            List<ExpressionSyntax> initExprs = GenerateKeysInitExpressions(instr.Accounts, IdentifierName("accounts"));
 
             List<StatementSyntax> body = new();
 
             var initExpr = InitializerExpression(SyntaxKind.CollectionInitializerExpression, ClientGeneratorDefaultValues.OpenBraceToken, SeparatedList<SyntaxNode>(initExprs), Token(SyntaxKind.CloseBraceToken));
 
             body.Add(LocalDeclarationStatement(VariableDeclaration(
-                GenericName(Identifier("List"), TypeArgumentList(SeparatedList(new TypeSyntax[] { IdentifierName("AccountMeta") }))),
+                GenericName(Identifier("List"), TypeArgumentList(SeparatedList(new TypeSyntax[] { QualifiedName(QualifiedName(QualifiedName(IdentifierName("Solnet"), IdentifierName("Rpc")),
+                        IdentifierName("Models")),
+                IdentifierName("AccountMeta")) }))),
                 SingletonSeparatedList(VariableDeclarator(Identifier("keys"), null,
                 EqualsValueClause(ImplicitObjectCreationExpression(ArgumentList(), initExpr)))))));
 
             body.Add(LocalDeclarationStatement(VariableDeclaration(
                 ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())),
-                SingletonSeparatedList(VariableDeclarator(Identifier("data"),
+                SingletonSeparatedList(VariableDeclarator(Identifier("_data"),
                     null,
                     EqualsValueClause(ArrayCreationExpression(
                         ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)),
@@ -204,7 +208,7 @@ namespace Solnet.Anchor
 
 
             body.Add(ExpressionStatement(InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName("data"), IdentifierName("WriteU64")),
+                IdentifierName("_data"), IdentifierName("WriteU64")),
                 ArgumentList(SeparatedList(new ArgumentSyntax[]
                 {
                     Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(SigHash.GetInstructionSignatureHash(instr.Name, "global")))),
@@ -232,12 +236,14 @@ namespace Solnet.Anchor
                 IdentifierName("Array"), IdentifierName("Copy")),
                 ArgumentList(SeparatedList(new ArgumentSyntax[]
                 {
-                    Argument(IdentifierName("data")),
+                    Argument(IdentifierName("_data")),
                     Argument(IdentifierName("resultData")),
                     Argument(IdentifierName("offset"))
                 })))));
 
-            body.Add(ReturnStatement(ObjectCreationExpression(IdentifierName("TransactionInstruction"), null,
+            body.Add(ReturnStatement(ObjectCreationExpression(QualifiedName(QualifiedName(QualifiedName(IdentifierName("Solnet"), IdentifierName("Rpc")),
+                        IdentifierName("Models")),
+                IdentifierName("TransactionInstruction")), null,
                 InitializerExpression(SyntaxKind.ObjectInitializerExpression, SeparatedList(new ExpressionSyntax[]
                 {
                     AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName("Keys"), IdentifierName("keys") ),
@@ -248,7 +254,9 @@ namespace Solnet.Anchor
 
                 })))));
 
-            return MethodDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicStaticModifiers, IdentifierName("TransactionInstruction"), null, Identifier(instr.Name.ToPascalCase()), null, ParameterList(SeparatedList(parameters)), List<TypeParameterConstraintClauseSyntax>(), Block(body), null);
+            return MethodDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicStaticModifiers, QualifiedName(QualifiedName(QualifiedName(IdentifierName("Solnet"), IdentifierName("Rpc")),
+                        IdentifierName("Models")),
+                IdentifierName("TransactionInstruction")), null, Identifier(instr.Name.ToPascalCase()), null, ParameterList(SeparatedList(parameters)), List<TypeParameterConstraintClauseSyntax>(), Block(body), null);
         }
 
         private bool IsSimpleEnum(IIdlTypeDefinitionTy[] types, string name)
@@ -293,7 +301,7 @@ namespace Solnet.Anchor
                         CastExpression(IdentifierName(definedType.TypeName),
                             InvocationExpression(MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("data"),
+                                IdentifierName("_data"),
                                 IdentifierName("GetU8")),
                             ArgumentList(SeparatedList(new ArgumentSyntax[]
                             {
@@ -315,7 +323,7 @@ namespace Solnet.Anchor
                         identifierNameSyntax,
                         InvocationExpression(MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             serializerFunctionName),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -335,8 +343,8 @@ namespace Solnet.Anchor
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
-                            IdentifierName("GetString")),
+                            IdentifierName("_data"),
+                            IdentifierName("GetBorshString")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
                                 Argument(IdentifierName("offset")),
@@ -359,7 +367,7 @@ namespace Solnet.Anchor
                     SingletonSeparatedList(VariableDeclarator(lenIdentifier, null,
                     EqualsValueClause(InvocationExpression(MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("data"),
+                        IdentifierName("_data"),
                         IdentifierName("GetU32")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -380,7 +388,7 @@ namespace Solnet.Anchor
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("GetBytes")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -423,7 +431,7 @@ namespace Solnet.Anchor
                         identifierNameSyntax,
                         InvocationExpression(MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("GetBigInt")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -442,7 +450,7 @@ namespace Solnet.Anchor
                         identifierNameSyntax,
                         InvocationExpression(MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("GetPubKey")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -456,7 +464,7 @@ namespace Solnet.Anchor
             {
                 var cond = InvocationExpression(MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("GetBool")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -501,7 +509,7 @@ namespace Solnet.Anchor
                                 IdentifierName("Serialize")),
                             ArgumentList(SeparatedList(new ArgumentSyntax[]
                             {
-                            Argument(IdentifierName("data")),
+                            Argument(IdentifierName("_data")),
                             Argument(IdentifierName("offset"))
                             }))))));
                 }
@@ -510,7 +518,7 @@ namespace Solnet.Anchor
                     syntaxes.Add(ExpressionStatement(InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("WriteU8")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -531,7 +539,7 @@ namespace Solnet.Anchor
                 syntaxes.Add(ExpressionStatement(InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("data"),
+                        IdentifierName("_data"),
                         serializerFunctionName),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -552,8 +560,8 @@ namespace Solnet.Anchor
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
-                            IdentifierName("WriteString")),
+                            IdentifierName("_data"),
+                            IdentifierName("WriteBorshString")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
                             Argument(identifierNameSyntax),
@@ -570,7 +578,7 @@ namespace Solnet.Anchor
                     syntaxes.Add(ExpressionStatement(InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("WriteU32")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -592,7 +600,7 @@ namespace Solnet.Anchor
                     syntaxes.Add(ExpressionStatement(InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("WriteSpan")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -645,7 +653,7 @@ namespace Solnet.Anchor
                         Argument(InvocationExpression(
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("data"),
+                                IdentifierName("_data"),
                                 IdentifierName("AsSpan")),
                             ArgumentList(SingletonSeparatedList(Argument(IdentifierName("offset")))))),
                         Argument(IdentifierName("out _ ")),
@@ -660,7 +668,7 @@ namespace Solnet.Anchor
                 syntaxes.Add(ExpressionStatement(InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("data"),
+                        IdentifierName("_data"),
                         IdentifierName("WritePubKey")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -680,7 +688,7 @@ namespace Solnet.Anchor
                 conditionBody.Add(ExpressionStatement(InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("data"),
+                        IdentifierName("_data"),
                         IdentifierName("WriteU8")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -699,7 +707,7 @@ namespace Solnet.Anchor
                     ExpressionStatement(InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("data"),
+                            IdentifierName("_data"),
                             IdentifierName("WriteU8")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
@@ -900,7 +908,7 @@ namespace Solnet.Anchor
                 ArgumentList(SeparatedList(new ArgumentSyntax[]{
                     Argument(LiteralExpression(SyntaxKind.NullLiteralExpression)),
                     Argument(ArrayCreationExpression(ArrayType(PredefinedType(Token(SyntaxKind.ObjectKeyword)), SingletonList(ArrayRankSpecifier())), InitializerExpression(
-                        SyntaxKind.ArrayInitializerExpression, SingletonSeparatedList<ExpressionSyntax>(IdentifierName("data")))))
+                        SyntaxKind.ArrayInitializerExpression, SingletonSeparatedList<ExpressionSyntax>(IdentifierName("_data")))))
                 }))))));
 
             return MethodDeclaration(List<AttributeListSyntax>(),
@@ -910,7 +918,7 @@ namespace Solnet.Anchor
                        Identifier("DeserializeAccount"),
                        TypeParameterList(SingletonSeparatedList(TypeParameter("T"))),
                        ParameterList(SeparatedList(new ParameterSyntax[] {
-                        Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("data"), null)
+                        Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("_data"), null)
 
                        })),
                        List<TypeParameterConstraintClauseSyntax>(),
@@ -981,8 +989,9 @@ namespace Solnet.Anchor
 
             List<StatementSyntax> body = new();
 
-            body.Add(LocalDeclarationStatement(VariableDeclaration(
-                IdentifierName("TransactionInstruction"),
+            body.Add(LocalDeclarationStatement(VariableDeclaration(QualifiedName(QualifiedName(QualifiedName(IdentifierName("Solnet"), IdentifierName("Rpc")),
+                        IdentifierName("Models")),
+                IdentifierName("TransactionInstruction")),
                 SingletonSeparatedList(VariableDeclarator(
                     Identifier("instr"),
                     null,
@@ -1129,7 +1138,7 @@ namespace Solnet.Anchor
                     Identifier("Serialize"),
                     null,
                     ParameterList(SeparatedList(new ParameterSyntax[] {
-                        Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("data"), null),
+                        Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("_data"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(), PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("initialOffset"), null),
 
                     })),
@@ -1151,7 +1160,7 @@ namespace Solnet.Anchor
                     SingletonSeparatedList(VariableDeclarator(Identifier("accountHashValue"), null,
                     EqualsValueClause(InvocationExpression(MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("data"),
+                        IdentifierName("_data"),
                         IdentifierName("GetU64")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -1162,7 +1171,7 @@ namespace Solnet.Anchor
                     LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(8)))));
 
                 var condition = BinaryExpression(
-                    SyntaxKind.EqualsExpression,
+                    SyntaxKind.NotEqualsExpression,
                     IdentifierName("accountHashValue"),
                     LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(SigHash.GetAccountSignatureHash(structIdl.Name))));
 
@@ -1213,7 +1222,7 @@ namespace Solnet.Anchor
                     Identifier("Deserialize"),
                     null,
                     ParameterList(SeparatedList(new ParameterSyntax[] {
-                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("data"), null)
+                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("_data"), null)
                     })),
                     List<TypeParameterConstraintClauseSyntax>(),
                     Block(desserializationBody),
@@ -1230,7 +1239,7 @@ namespace Solnet.Anchor
                     Identifier("Deserialize"),
                     null,
                     ParameterList(SeparatedList(new ParameterSyntax[] {
-                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("data"), null),
+                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("_data"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(), PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("initialOffset"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(Token(SyntaxKind.OutKeyword)), IdentifierName(structIdl.Name.ToPascalCase()), resultVariableToken, null)
                     })),
@@ -1344,7 +1353,7 @@ namespace Solnet.Anchor
                                 IdentifierName("Deserialize")),
                             ArgumentList(SeparatedList(new ArgumentSyntax[]
                             {
-                                Argument(IdentifierName("data")),
+                                Argument(IdentifierName("_data")),
                                 Argument(IdentifierName("offset")),
                                 Argument(null, Token(SyntaxKind.OutKeyword),IdentifierName("tmp" + structVariant.Name.ToPascalCase() + "Value"))
 
@@ -1362,7 +1371,7 @@ namespace Solnet.Anchor
                             Identifier("Deserialize"),
                             null,
                             ParameterList(SeparatedList(new ParameterSyntax[] {
-                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("data"), null),
+                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("_data"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(), PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("initialOffset"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(Token(SyntaxKind.OutKeyword)), IdentifierName(structVariant.Name.ToPascalCase() + "Type"), Identifier("result"), null)
                             })),
@@ -1377,7 +1386,7 @@ namespace Solnet.Anchor
                         Identifier("Serialize"),
                         null,
                         ParameterList(SeparatedList(new ParameterSyntax[] {
-                            Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("data"), null),
+                            Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("_data"), null),
                             Parameter(List<AttributeListSyntax>(), TokenList(), PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("initialOffset"), null),
                         })),
                         List<TypeParameterConstraintClauseSyntax>(),
@@ -1393,7 +1402,7 @@ namespace Solnet.Anchor
                                 IdentifierName("Serialize")),
                             ArgumentList(SeparatedList(new ArgumentSyntax[]
                             {
-                            Argument(IdentifierName("data")),
+                            Argument(IdentifierName("_data")),
                             Argument(IdentifierName("offset"))
                             }))))));
 
@@ -1461,7 +1470,7 @@ namespace Solnet.Anchor
                 ExpressionStatement(InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("data"),
+                        IdentifierName("_data"),
                         IdentifierName("WriteU8")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
@@ -1485,7 +1494,7 @@ namespace Solnet.Anchor
                         Identifier("Serialize"),
                         null,
                         ParameterList(SeparatedList(new ParameterSyntax[] {
-                            Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("data"), null),
+                            Parameter(List<AttributeListSyntax>(), TokenList(), ArrayType(PredefinedType(Token(SyntaxKind.ByteKeyword)), SingletonList(ArrayRankSpecifier())), Identifier("_data"), null),
                             Parameter(List<AttributeListSyntax>(), TokenList(), PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("initialOffset"), null),
                         })),
                         List<TypeParameterConstraintClauseSyntax>(),
@@ -1517,7 +1526,7 @@ namespace Solnet.Anchor
             var enumValueToken = Identifier("resulVal");
             var enumValueVariable = IdentifierName(enumValueToken);
 
-            var invocation = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("data"), IdentifierName("GetU8")),
+            var invocation = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("_data"), IdentifierName("GetU8")),
                 ArgumentList(SeparatedList(new ArgumentSyntax[]
                 {
                     Argument(IdentifierName("offset"))
@@ -1556,7 +1565,7 @@ namespace Solnet.Anchor
                     Identifier("Deserialize"),
                     null,
                     ParameterList(SeparatedList(new ParameterSyntax[] {
-                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("data"), null),
+                        Parameter(List<AttributeListSyntax>(), TokenList(), GenericName(Identifier("ReadOnlySpan"), TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.ByteKeyword))))), Identifier("_data"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(), PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("initialOffset"), null),
                         Parameter(List<AttributeListSyntax>(), TokenList(Token(SyntaxKind.OutKeyword)), IdentifierName(enumIdl.Name.ToPascalCase()), resultVariableToken, null)
                     })),

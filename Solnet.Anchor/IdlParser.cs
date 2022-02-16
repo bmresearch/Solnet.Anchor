@@ -1,4 +1,5 @@
-﻿using Solnet.Anchor.Models;
+﻿using Solnet.Anchor.Converters;
+using Solnet.Anchor.Models;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -10,7 +11,11 @@ namespace Solnet.Anchor
 
         public static Idl Parse(string idl)
         {
-            var res = JsonSerializer.Deserialize<Idl>(idl, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            var res = JsonSerializer.Deserialize<Idl>(idl, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new IIdlSeedTypeConverter() }
+            });
             return res;
         }
 

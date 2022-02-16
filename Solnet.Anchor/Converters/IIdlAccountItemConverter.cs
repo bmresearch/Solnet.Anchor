@@ -64,10 +64,25 @@ namespace Solnet.Anchor.Converters
                     if ("isSigner" != propertyName) throw new JsonException("Unexpected error value.");
                     account.IsSigner = reader.GetBoolean();
                     accountItems.Add(account);
+
+                    reader.Read();
+
+                    if(reader.TokenType == JsonTokenType.PropertyName)
+                    {
+                        var prop = reader.GetString();
+
+                        if ("pda" != prop) throw new JsonException("Unexpected property.");
+
+                        reader.Read();
+
+                        account.Pda = JsonSerializer.Deserialize<IdlPda>(ref reader, options);
+                        reader.Read();
+                    }
                 }
 
                 // object end
-                reader.Read();
+                if(reader.TokenType != JsonTokenType.EndObject)
+                    reader.Read();
             }
             //array end
             //reader.Read();

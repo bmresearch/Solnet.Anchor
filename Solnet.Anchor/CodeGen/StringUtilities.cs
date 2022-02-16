@@ -14,7 +14,23 @@ namespace Solnet.Anchor.CodeGen
 
             if (char.IsLower(chars[0]))
                 chars[0] = char.ToUpper(chars[0]);
-            return new string(chars);
+            
+            int uc = 0;
+            for (int i = 1; i < chars.Length; i++)
+            {
+                if(chars[i] == '_')
+                {
+                    uc++;
+                    i++;
+                    chars[i - uc] = char.ToUpper(chars[i]);
+                }
+                else if (uc > 0)
+                {
+                    chars[i - uc] = chars[i];
+                }
+            }
+
+            return new string(chars, 0, chars.Length - uc);
         }
         
         public static string ToCamelCase(this string name)
