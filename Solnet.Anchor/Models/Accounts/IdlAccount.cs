@@ -11,7 +11,7 @@ namespace Solnet.Anchor.Models.Accounts
     {
         public string Name { get; set; }
 
-        public string NamePascalCase { get; set; }
+        public string NamePascalCase => Name.ToPascalCase();
 
         public bool IsMut { get; set; }
 
@@ -19,36 +19,5 @@ namespace Solnet.Anchor.Models.Accounts
 
         public IdlPda Pda { get; set; }
 
-        public string GenerateAccountSerialization(string objectName)
-        {
-            StringBuilder sb = new();
-            sb.Append(Utilities.Lvl4Ident);
-            sb.Append("AccountMeta.");
-
-            if (IsMut)
-                sb.Append("Writable");
-            else
-                sb.Append("ReadOnly");
-
-            sb.Append("(");
-            sb.Append(objectName);
-            sb.Append(".");
-            sb.Append(NamePascalCase);
-            sb.Append(", ");
-            sb.Append(IsSigner);
-            sb.Append(");");
-
-            return sb.ToString();
-        }
-
-        public string GenerateFieldDeclaration(List<StringBuilder> innerTypes)
-        {
-            return "PublicKey " + NamePascalCase + " { get; set; }";
-        }
-
-        public void PreProcess(string baseNamespace, string fullGroupName)
-        {
-            NamePascalCase = Name.ToPascalCase();
-        }
     }
 }

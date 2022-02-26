@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.6.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solnet.Anchor.Test", "Solnet.Anchor.Test\Solnet.Anchor.Test.csproj", "{BD4EB2AF-3BB3-4B1A-8C75-4A690B209949}"
 EndProject
@@ -8,7 +8,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solnet.Anchor", "Solnet.Anc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solnet.Anchor.Examples", "Solnet.Anchor.Examples\Solnet.Anchor.Examples.csproj", "{9AC72DCB-8418-43C7-AFAB-9865265F2A40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solnet.Anchor.SourceGen", "Solnet.Anchor.SourceGen\Solnet.Anchor.SourceGen.csproj", "{BACB38D0-52A5-44AE-A807-8FE9259A9AB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solnet.Anchor.Tool", "Solnet.Anchor.Tool\Solnet.Anchor.Tool.csproj", "{BACB38D0-52A5-44AE-A807-8FE9259A9AB9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solnet.Anchor.SourceGenerator", "Solnet.Anchor.SourceGenerator\Solnet.Anchor.SourceGenerator.csproj", "{B1FB4C47-C3B7-4118-937E-0383F3F69D08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3E936370-ADFC-46AE-8EB1-6AFFAD086E20}"
+	ProjectSection(SolutionItems) = preProject
+		build.cake = build.cake
+		build.ps1 = build.ps1
+		build.sh = build.sh
+		cake.config = cake.config
+		README.md = README.md
+		SharedBuildProperties.props = SharedBuildProperties.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +80,18 @@ Global
 		{BACB38D0-52A5-44AE-A807-8FE9259A9AB9}.Release|x64.Build.0 = Release|Any CPU
 		{BACB38D0-52A5-44AE-A807-8FE9259A9AB9}.Release|x86.ActiveCfg = Release|Any CPU
 		{BACB38D0-52A5-44AE-A807-8FE9259A9AB9}.Release|x86.Build.0 = Release|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Debug|x64.Build.0 = Debug|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Debug|x86.Build.0 = Debug|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Release|x64.ActiveCfg = Release|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Release|x64.Build.0 = Release|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Release|x86.ActiveCfg = Release|Any CPU
+		{B1FB4C47-C3B7-4118-937E-0383F3F69D08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

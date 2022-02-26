@@ -49,8 +49,15 @@ namespace Solnet.Anchor.Converters
                 {
                     reader.Read();
                     IIdlType innerType = Read(ref reader, typeToConvert, options);
-                    if (reader.TokenType == JsonTokenType.EndObject) reader.Read();
+                    reader.Read();
                     return new IdlOptional() { ValuesType = innerType };
+                }
+                else if("vec" == typeName)
+                {
+                    reader.Read();
+                    IIdlType innerType = Read(ref reader, typeToConvert, options);
+                    reader.Read();
+                    return new IdlArray() { ValuesType = innerType };
                 }
                 else
                 {
@@ -66,10 +73,6 @@ namespace Solnet.Anchor.Converters
                         reader.Read();
                         int size = reader.GetInt32();
                         idlType = new IdlArray() { Size = size, ValuesType = innerType };
-                    }
-                    else if ("vec" == typeName)
-                    {
-                        idlType = new IdlArray() { ValuesType = innerType };
                     }
                     else
                     {

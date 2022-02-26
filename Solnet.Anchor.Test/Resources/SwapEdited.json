@@ -4,93 +4,7 @@
   "instructions": [
     {
       "name": "swap",
-      "accounts": [
-        {
-          "name": "market",
-          "accounts": [
-            {
-              "name": "market",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "openOrders",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "requestQueue",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "eventQueue",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "bids",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "asks",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "orderPayerTokenAccount",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "coinVault",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "pcVault",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "vaultSigner",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "coinWallet",
-              "isMut": true,
-              "isSigner": false
-            }
-          ]
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "pcWallet",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "dexProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
+      "accountsSymbol": "Swap",
       "args": [
         {
           "name": "side",
@@ -110,153 +24,7 @@
     },
     {
       "name": "swapTransitive",
-      "accounts": [
-        {
-          "name": "from",
-          "accounts": [
-            {
-              "name": "market",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "openOrders",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "requestQueue",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "eventQueue",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "bids",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "asks",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "orderPayerTokenAccount",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "coinVault",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "pcVault",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "vaultSigner",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "coinWallet",
-              "isMut": true,
-              "isSigner": false
-            }
-          ]
-        },
-        {
-          "name": "to",
-          "accounts": [
-            {
-              "name": "market",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "openOrders",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "requestQueue",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "eventQueue",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "bids",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "asks",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "orderPayerTokenAccount",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "coinVault",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "pcVault",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "vaultSigner",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "coinWallet",
-              "isMut": true,
-              "isSigner": false
-            }
-          ]
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "pcWallet",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "dexProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
+      "accountsSymbol": "SwapTransitive",
       "args": [
         {
           "name": "amount",
@@ -276,27 +44,10 @@
         "kind": "enum",
         "variants": [
           {
-            "name": "Bid",
-            "fields": [
-              "u32",
-              "u64"
-            ]
+            "name": "Bid"
           },
           {
-            "name": "Ask",
-            "fields": [
-              {
-                "name": "asd",
-                "type": "u32"
-              },
-              {
-                "name": "qwe",
-                "type": "u64"
-              }
-            ]
-          },
-          {
-            "name":  "SomeOtherShit"
+            "name": "Ask"
           }
         ]
       }
@@ -365,5 +116,141 @@
       "name": "SlippageExceeded",
       "msg": "Slippage tolerance exceeded"
     }
-  ]
+  ],
+  "context": {
+    "accounts": [
+      {
+        "symbol": "swapTransitive",
+        "accounts": [
+          {
+            "name": "from",
+            "symbol": "marketAccounts"
+          },
+          {
+            "name": "to",
+            "symbol": "marketAccounts"
+          },
+          {
+            "name": "authority",
+            "isMut": false,
+            "isSigner": true
+          },
+          {
+            "name": "pcWallet",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "dexProgram",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "tokenProgram",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "rent",
+            "isMut": false,
+            "isSigner": false
+          }
+        ]
+      },
+      {
+        "symbol": "swap",
+        "accounts": [
+          {
+            "name": "market",
+            "symbol": "marketAccounts"
+          },
+          {
+            "name": "authority",
+            "isMut": false,
+            "isSigner": true
+          },
+          {
+            "name": "pcWallet",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "dexProgram",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "tokenProgram",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "rent",
+            "isMut": false,
+            "isSigner": false
+          }
+        ]
+      },
+      {
+        "symbol": "marketAccounts",
+        "accounts": [
+          {
+            "name": "market",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "openOrders",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "requestQueue",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "eventQueue",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "bids",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "asks",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "orderPayerTokenAccount",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "coinVault",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "pcVault",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "vaultSigner",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "coinWallet",
+            "isMut": true,
+            "isSigner": false
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -21,17 +21,5 @@ namespace Solnet.Anchor.Models
         public IIdlAccountItem[] Accounts { get; set; }
 
         public IdlField[] Args { get; set; }
-
-        internal void PreProcess(string baseNamespace, string funcNamespace)
-        {
-            InstructionSignatureHash = SigHash.GetInstructionSignatureHash(Name, funcNamespace);
-
-            Name = Name.ToPascalCase();
-
-            foreach (var account in Accounts)
-            {
-                account.PreProcess(baseNamespace, Name);
-            }
-        }
     }
 }

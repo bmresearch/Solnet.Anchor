@@ -15,19 +15,16 @@ namespace Solnet.Anchor.Test
         public void TestMethod1()
         {
             //var res = IdlParser.ParseFile("Resources/ChatExample.json");
-            var res = IdlParser.ParseFile("Resources/SwapEdited.json");
+            var res = IdlParser.ParseFile("Resources/seq.json");
             Assert.IsNotNull(res);
 
-            res.PreProcess(null, null, null, null, null);
 
-            var code = res.GenerateCode();
 
 
             ClientGenerator c = new();
 
             c.GenerateSyntaxTree(res);
 
-            Assert.IsNotNull(code);
 
         }
     }
