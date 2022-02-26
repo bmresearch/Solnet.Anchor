@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Profile 1": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Solnet.Anchor.Examples\\Solnet.Anchor.Examples.csproj"
+    },
+    "Profile 2": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\TestGen\\TestGen.csproj"
+    }
+  }
+}

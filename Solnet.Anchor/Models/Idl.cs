@@ -13,10 +13,13 @@ namespace Solnet.Anchor.Models
 {
     public class Idl
     {
+        [JsonIgnore]
+        public string DefaultProgramAddress { get; set; }
+
         public string Version { get; set; }
         public string Name { get; set; }
 
-        public string NamePascalCase { get; set; }
+        public string NamePascalCase => Name.ToPascalCase();
 
         public IdlInstruction[] Instructions { get; set; }
 
@@ -36,7 +39,6 @@ namespace Solnet.Anchor.Models
 
         public void PreProcess(string baseNamespace, string accountsNamespace, string typesNamespace, string errorsNamespace, string eventsNamespace)
         {
-            NamePascalCase = Name.ToPascalCase();
             foreach (var instruction in Instructions)
             {
                 instruction.PreProcess(baseNamespace, "global");

@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
-    <PackageReference Include="Solnet.Programs" Version="0.6.0" />
-    <PackageReference Include="Solnet.Rpc" Version="0.6.0" />
-    <PackageReference Include="Solnet.Wallet" Version="0.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
+    <PackageReference Include="Solnet.Programs" Version="6.0.2" />
+    <PackageReference Include="Solnet.Rpc" Version="6.0.2" />
+    <PackageReference Include="Solnet.Wallet" Version="6.0.2" />
   </ItemGroup>
 
 

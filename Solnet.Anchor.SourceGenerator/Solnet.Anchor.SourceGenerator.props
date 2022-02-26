@@ -1,0 +1,8 @@
+﻿<Project>
+	<ItemGroup>
+		<CompilerVisibleProperty Include="AnchorGenerator" />
+		<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="AnchorGenerate" />
+		<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Address" />
+		<CompilerVisibleProperty Include="MyGenerator_EnableLogging" />
+	</ItemGroup>
+</Project>
