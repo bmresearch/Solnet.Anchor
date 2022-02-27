@@ -3,10 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Jet;
 using Solnet.Rpc;
 using Solnet.Wallet;
+
 using SequenceEnforcer;
+using Jet;
+
+/// <summary>
+/// PROJECT DISABLED BY DEFAULT
+/// 
+/// SHOULD WORK ONCE YOU RUN
+/// 
+/// dotnet tool install Solnet.Anchor.Tool
+/// 
+/// possibly with the -g flag
+/// </summary>
+
 
 namespace Solnet.Anchor.Examples
 {
@@ -21,7 +33,7 @@ namespace Solnet.Anchor.Examples
 
             var rpc = ClientFactory.GetClient("https://ssc-dao.genesysgo.net");
             var rpcStreaming = ClientFactory.GetStreamingClient(Cluster.MainNet);
-            /*
+            
             JetClient c = new JetClient(rpc, rpcStreaming);
 
             var markets = c.GetMarketsAsync();
@@ -59,7 +71,7 @@ namespace Solnet.Anchor.Examples
             var ix3 = SequenceEnforcer.Program.SequenceEnforcerProgram.ResetSequenceNumber( new SequenceEnforcer.Program.ResetSequenceNumberAccounts() { Authority = wallet.Account.PublicKey, SequenceAccount = newAcc }, sequence);
 
             var tx = rpc.SendTransaction("");
-            */
+            
 
             Console.ReadLine();
         }
