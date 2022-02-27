@@ -49,7 +49,7 @@ To compile this project:
 
 To use the generator tool:
 
-- `dotnet install Solnet.Anchor.Tool` (if you use `-g` option, you won't need to do this for every project')
+- `dotnet tool install Solnet.Anchor.Tool` (if you use `-g` option, you won't need to do this for every project')
 - `dotnet anchorgen -i idl/file.json -o src/ProgramCode.cs`  
    - You can generate from a live program that uploaded its idl using flag `-a`, or add the default program address if used alongside `-i`
    - You stdout output is supported using `-s` flag
