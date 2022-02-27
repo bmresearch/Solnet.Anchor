@@ -18,7 +18,6 @@ jobs:
           target: Pack
           cake-bootstrap: true
       - name: Publish Solnet.Anchor.Tool on version change
-        id: publish_nuget
         uses: bmresearch/publish-nuget@master
         with:
           PROJECT_FILE_PATH: Solnet.Anchor.Tool/Solnet.Anchor.Tool.csproj
@@ -29,7 +28,6 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
           INCLUDE_SYMBOLS: true
       - name: Publish Solnet.Anchor.SourceGenerator on version change
-        id: publish_nuget
         uses: bmresearch/publish-nuget@master
         with:
           PROJECT_FILE_PATH: Solnet.Anchor.SourceGenerator/Solnet.Anchor.SourceGenerator.csproj
