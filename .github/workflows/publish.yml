@@ -29,6 +29,7 @@ jobs:
           INCLUDE_SYMBOLS: true
       - name: Publish Solnet.Anchor.SourceGenerator on version change
         uses: bmresearch/publish-nuget@master
+        id: publish_nuget
         with:
           PROJECT_FILE_PATH: Solnet.Anchor.SourceGenerator/Solnet.Anchor.SourceGenerator.csproj
           PACKAGE_NAME: Solnet.Anchor.SourceGenerator
