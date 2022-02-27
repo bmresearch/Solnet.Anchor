@@ -874,16 +874,17 @@ namespace Solnet.Anchor
 
             clientMembers.Add(GenerateErrorMapping(idl));
 
-            return ClassDeclaration(
-                List<AttributeListSyntax>(),
-                ClientGeneratorDefaultValues.PublicModifier,
-                Identifier(className),
-                default,
-                BaseList(SingletonSeparatedList<BaseTypeSyntax>(
-                    SimpleBaseType(GenericName(Identifier("TransactionalBaseClient"),
-                    TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(idl.NamePascalCase + "ErrorKind"))))))),
-                List<TypeParameterConstraintClauseSyntax>(),
-                List(clientMembers));
+            return ClassDeclaration(className)
+                .WithModifiers(
+                    TokenList(
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.PartialKeyword)))
+                .WithBaseList(
+                    BaseList(
+                        SingletonSeparatedList<BaseTypeSyntax>(
+                            SimpleBaseType(GenericName(Identifier("TransactionalBaseClient"),
+                            TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(idl.NamePascalCase + "ErrorKind"))))))))
+                .WithMembers(List(clientMembers));
         }
 
         private MemberDeclarationSyntax GenerateErrorMapping(Idl idl)
