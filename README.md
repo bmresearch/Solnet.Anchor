@@ -1,3 +1,26 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/bmresearch/Solnet.Anchor/master/assets/icon.png" margin="auto" height="175"/>
+</p>
+
+<p align="center">
+    <a href="https://github.com/bmresearch/Solnet.Anchor/actions/workflows/dotnet.yml">
+        <img src="https://github.com/bmresearch/Solnet.Anchor/actions/workflows/dotnet.yml/badge.svg"
+            alt="Build" ></a>
+    <a href="https://github.com/bmresearch/Solnet.Anchor/actions/workflows/publish.yml">
+       <img src="https://github.com/bmresearch/Solnet.Anchor/actions/workflows/publish.yml/badge.svg" 
+            alt="Release"></a>
+    <a href="">
+        <img src="https://img.shields.io/github/license/bmresearch/Solnet?style=flat-square"
+            alt="Code License"></a>
+    <a href="https://discord.gg/cReXaBReZt">
+       <img alt="Discord" src="https://img.shields.io/discord/849407317761064961?style=flat-square"
+            alt="Join the discussion!"></a>
+</p>
+
+<div style="text-align:center">
+
+<p>
+
 # Solnet.Anchor
 
 Solnet.Anchor is a set of tools to generate C# code to interact with Solana Anchor programs.
