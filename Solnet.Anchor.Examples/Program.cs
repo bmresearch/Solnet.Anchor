@@ -21,7 +21,7 @@ namespace Solnet.Anchor.Examples
 
             var rpc = ClientFactory.GetClient("https://ssc-dao.genesysgo.net");
             var rpcStreaming = ClientFactory.GetStreamingClient(Cluster.MainNet);
-
+            /*
             JetClient c = new JetClient(rpc, rpcStreaming);
 
             var markets = c.GetMarketsAsync();
@@ -59,7 +59,7 @@ namespace Solnet.Anchor.Examples
             var ix3 = SequenceEnforcer.Program.SequenceEnforcerProgram.ResetSequenceNumber( new SequenceEnforcer.Program.ResetSequenceNumberAccounts() { Authority = wallet.Account.PublicKey, SequenceAccount = newAcc }, sequence);
 
             var tx = rpc.SendTransaction("");
-
+            */
 
             Console.ReadLine();
         }
