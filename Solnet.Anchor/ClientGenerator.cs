@@ -39,6 +39,18 @@ namespace Solnet.Anchor
 
     public class ClientGenerator
     {
+        private static List<string> LANG_KEYWORDS;
+
+
+        static ClientGenerator()
+        {
+            LANG_KEYWORDS = new()
+            {
+                "params"
+            };
+        }
+
+
         public SyntaxTree GenerateSyntaxTree(Idl idl)
         {
             List<MemberDeclarationSyntax> members = new();
@@ -184,7 +196,7 @@ namespace Solnet.Anchor
 
             foreach (var arg in instr.Args)
             {
-                parameters.Add(Parameter(List<AttributeListSyntax>(), TokenList(), GetTypeSyntax(arg.Type), Identifier(arg.Name), null));
+                parameters.Add(Parameter(List<AttributeListSyntax>(), TokenList(), GetTypeSyntax(arg.Type), Identifier(GetNormalizedName(arg.Name)), null));
             }
 
             parameters.Add(Parameter(List<AttributeListSyntax>(), TokenList(), IdentifierName("PublicKey"), Identifier("programId"), defaultProgram));
@@ -246,7 +258,7 @@ namespace Solnet.Anchor
 
             foreach (var arg in instr.Args)
             {
-                body.AddRange(GenerateArgSerializationSyntaxList(definedTypes, arg.Type, IdentifierName(arg.Name)));
+                body.AddRange(GenerateArgSerializationSyntaxList(definedTypes, arg.Type, IdentifierName(GetNormalizedName(arg.Name))));
             }
 
             body.Add(LocalDeclarationStatement(VariableDeclaration(
@@ -614,7 +626,7 @@ namespace Solnet.Anchor
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName("_data"),
-                            IdentifierName("WriteU32")),
+                            IdentifierName("WriteS32")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
                             Argument(MemberAccessExpression(
@@ -703,7 +715,7 @@ namespace Solnet.Anchor
                         IdentifierName("WriteU8")),
                     ArgumentList(SeparatedList(new ArgumentSyntax[]
                     {
-                        Argument(LiteralExpression(SyntaxKind.NumericLiteralToken, Literal(1))),
+                        Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(1))),
                         Argument(IdentifierName("offset"))
                     })))));
 
@@ -712,7 +724,13 @@ namespace Solnet.Anchor
                     IdentifierName("offset"),
                     LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(1)))));
 
-                conditionBody.AddRange(GenerateArgSerializationSyntaxList(definedTypes, optionalType.ValuesType, identifierNameSyntax));
+                conditionBody.AddRange(GenerateArgSerializationSyntaxList(
+                    definedTypes,
+                    optionalType.ValuesType,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        identifierNameSyntax,
+                        IdentifierName("Value"))));
 
                 var elseBody = Block(
                     ExpressionStatement(InvocationExpression(
@@ -722,7 +740,7 @@ namespace Solnet.Anchor
                             IdentifierName("WriteU8")),
                         ArgumentList(SeparatedList(new ArgumentSyntax[]
                         {
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralToken, Literal(0))),
+                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))),
                             Argument(IdentifierName("offset"))
                         })))),
 
@@ -993,8 +1011,8 @@ namespace Solnet.Anchor
 
             foreach (var arg in instr.Args)
             {
-                parameters.Add(Parameter(List<AttributeListSyntax>(), TokenList(), GetTypeSyntax(arg.Type), Identifier(arg.Name), null));
-                arguments.Add(Argument(IdentifierName(arg.Name)));
+                parameters.Add(Parameter(List<AttributeListSyntax>(), TokenList(), GetTypeSyntax(arg.Type), Identifier(GetNormalizedName(arg.Name)), null));
+                arguments.Add(Argument(IdentifierName(GetNormalizedName(arg.Name))));
 
             }
 
@@ -1318,11 +1336,69 @@ namespace Solnet.Anchor
 
             for (int i = 0; i < idl.Types.Length; i++)
             {
-                types.AddRange(GenerateTypeDeclaration(idl, idl.Types[i], true));
+                if (IsTypeReferenced(idl, idl.Types[i]))
+                    types.AddRange(GenerateTypeDeclaration(idl, idl.Types[i], true));
             }
 
             return NamespaceDeclaration(IdentifierName("Types"), List<ExternAliasDirectiveSyntax>(), List<UsingDirectiveSyntax>(), List(types));
         }
+
+        private bool IsTypeReferenced(Idl idl, IIdlTypeDefinitionTy idlTypeDefinitionTy)
+        {
+            string typeName = idlTypeDefinitionTy.Name;
+
+            foreach (var type in idl.Types)
+            {
+                if (IsTypeReferenced(type, typeName)) return true;
+            }
+
+            foreach (var type in idl.Accounts)
+            {
+                if (IsTypeReferenced(type, typeName)) return true;
+            }
+
+            foreach (var instr in idl.Instructions)
+            {
+                foreach (var arg in instr.Args)
+                    if (IsTypeReferenced(arg.Type, typeName)) return true;
+            }
+
+            return false;
+        }
+
+        private bool IsTypeReferenced(IIdlTypeDefinitionTy typeToCheck, string typeName)
+        => typeToCheck switch
+        {
+            StructIdlTypeDefinition structIdl => IsTypeReferenced(structIdl, typeName),
+            EnumIdlTypeDefinition enumIdl => IsTypeReferenced(enumIdl, typeName),
+            _ => false
+        };
+
+        private bool IsTypeReferenced(StructIdlTypeDefinition type, string typeName)
+        => type.Fields.Any(f => IsTypeReferenced(f.Type, typeName));
+
+        private bool IsTypeReferenced(EnumIdlTypeDefinition type, string typeName)
+        => type.Variants.Any(v => v switch
+        {
+            NamedFieldsEnumVariant named => IsTypeReferenced(named, typeName),
+            TupleFieldsEnumVariant tuple => IsTypeReferenced(tuple, typeName),
+            _ => false
+        });
+
+        private bool IsTypeReferenced(NamedFieldsEnumVariant variant, string typeName)
+        => variant.Fields.Any(f => IsTypeReferenced(f.Type, typeName));
+        private bool IsTypeReferenced(TupleFieldsEnumVariant variant, string typeName)
+        => variant.Fields.Any(f => IsTypeReferenced(f, typeName));
+
+        private bool IsTypeReferenced(IIdlType type, string typeName)
+        => type switch
+        {
+            IdlDefined t => t.TypeName == typeName,
+            IdlArray arr => IsTypeReferenced(arr.ValuesType, typeName),
+            IdlOptional opt => IsTypeReferenced(opt.ValuesType, typeName),
+            _ => false
+        };
+
 
         private SyntaxList<MemberDeclarationSyntax> GenerateTypeDeclaration(Idl idl, IIdlTypeDefinitionTy idlTypeDefinitionTy, bool generateSerialization, bool isAccount = false)
             => idlTypeDefinitionTy switch
@@ -1933,5 +2009,12 @@ namespace Solnet.Anchor
             return NamespaceDeclaration(IdentifierName("Accounts"), List<ExternAliasDirectiveSyntax>(), List<UsingDirectiveSyntax>(), List(accounts));
         }
 
+
+        private string GetNormalizedName(string name)
+        {
+            if (LANG_KEYWORDS.Contains(name))
+                return $"@{name}";
+            return name;
+        }
     }
 }

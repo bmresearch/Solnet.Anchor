@@ -39,7 +39,7 @@ Currently covers all of IDL features with the exception of events and seeds.
 Solnet.Anchor and Solnet.Anchor.Tool are compiled and run in net6. Could be easily backported to net5.
 Solnet.Anchor.SourceGenerator is compiled in netstandard2.1 to be able to be used as a Roslyn Source Generator. However, machine needs net6 as it just calls Solnet.Anchor.Tool that requires net6.
 
-Generated code can be run using net5 or net6, and the respective Solnet v5 or v6 libraries.
+Generated code can be run using net5 or net6, and the respective Solnet version >=5.0.3 or >=6.0.3 libraries.
 
 ## Instructions
 

@@ -119,10 +119,29 @@ namespace Solnet.Anchor.Converters
 
                             tmp.Read();
 
-
+                            bool isNamedVariant = false;
 
                             if (tmp.TokenType == JsonTokenType.StartObject)
                             {
+                                tmp.Read();
+
+                                while (tmp.TokenType != JsonTokenType.EndObject)
+                                {
+                                    if (tmp.TokenType == JsonTokenType.StartObject || tmp.TokenType == JsonTokenType.StartArray)
+                                        tmp.Skip();
+
+                                    if (tmp.TokenType == JsonTokenType.PropertyName
+                                        && tmp.GetString() == "name")
+                                    {
+                                        isNamedVariant = true;
+                                        break;
+                                    }
+                                    tmp.Read();
+                                }
+                            }
+
+                            if(isNamedVariant)
+                            { 
                                 var variant = JsonSerializer.Deserialize<NamedFieldsEnumVariant>(ref reader, options);
 
                                 variants.Add(variant);

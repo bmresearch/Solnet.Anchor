@@ -8,6 +8,7 @@ using Solnet.Wallet;
 
 using SequenceEnforcer;
 using Jet;
+using SwitchboardV2;
 
 /// <summary>
 /// PROJECT DISABLED BY DEFAULT
@@ -29,17 +30,46 @@ namespace Solnet.Anchor.Examples
             var program = new PublicKey("GDDMwNyyx8uB6zrqwBFHjLLG3TBYk2F8Az4yrQC5RzMp");
             var mn = "redacted";
             System.Diagnostics.Debugger.Launch();
-            var wallet = new Wallet.Wallet(mn);
+            var wallet = new Wallet.Wallet(Wallet.Bip39.WordCount.TwentyFour, Wallet.Bip39.WordList.English);
 
             var rpc = ClientFactory.GetClient("https://ssc-dao.genesysgo.net");
             var rpcStreaming = ClientFactory.GetStreamingClient(Cluster.MainNet);
-            
+
+            SwitchboardV2Client sc = new SwitchboardV2Client(rpc, rpcStreaming);
+
+
+            var accs = sc.GetOracleAccountDatasAsync().Result;
+
+            var aggs = sc.GetAggregatorAccountDatasAsync().Result;
+
+            var first = aggs.ParsedResult[0];
+
+            foreach (var agg in aggs.ParsedResult)
+            {
+                var name = Encoding.UTF8.GetString(agg.Name).Trim('\0');
+
+                if (agg.LatestConfirmedRound.RoundOpenTimestamp < DateTime.UtcNow.Subtract(TimeSpan.FromDays(1)).Subtract(DateTime.UnixEpoch).TotalSeconds)
+                {
+                    Console.WriteLine($"Skipping {name} ts:{agg.LatestConfirmedRound.RoundOpenTimestamp}");
+                    continue;
+                }
+
+
+                var decimals = 20;
+
+                decimal dec = (decimal)agg.LatestConfirmedRound.Result.Mantissa;
+
+                var val = dec / (decimal)Math.Pow(10, agg.LatestConfirmedRound.Result.Scale);
+
+                Console.WriteLine($"{name}\t{val}");
+            }
+
             JetClient c = new JetClient(rpc, rpcStreaming);
 
             var markets = c.GetMarketsAsync();
             var obligations = c.GetObligationsAsync();
             var reserves = c.GetReservesAsync();
-            
+
             Task.WaitAll(markets, obligations, reserves);
 
             var bal = rpc.GetBalance(wallet.Account.PublicKey);
@@ -62,16 +92,16 @@ namespace Solnet.Anchor.Examples
                 (payload, pk) => wallet.Sign(payload)).Result;
 
             //can also get instruction for compossability
-            var ix = SequenceEnforcer.Program.SequenceEnforcerProgram.Initialize( initAccounts, bump, sym);
+            var ix = SequenceEnforcer.Program.SequenceEnforcerProgram.Initialize(initAccounts, bump, sym);
 
             ulong sequence = 0ul;
 
-            var ix2 = SequenceEnforcer.Program.SequenceEnforcerProgram.CheckAndSetSequenceNumber( new SequenceEnforcer.Program.CheckAndSetSequenceNumberAccounts() { Authority = wallet.Account.PublicKey, SequenceAccount = newAcc }, sequence);
+            var ix2 = SequenceEnforcer.Program.SequenceEnforcerProgram.CheckAndSetSequenceNumber(new SequenceEnforcer.Program.CheckAndSetSequenceNumberAccounts() { Authority = wallet.Account.PublicKey, SequenceAccount = newAcc }, sequence);
 
-            var ix3 = SequenceEnforcer.Program.SequenceEnforcerProgram.ResetSequenceNumber( new SequenceEnforcer.Program.ResetSequenceNumberAccounts() { Authority = wallet.Account.PublicKey, SequenceAccount = newAcc }, sequence);
+            var ix3 = SequenceEnforcer.Program.SequenceEnforcerProgram.ResetSequenceNumber(new SequenceEnforcer.Program.ResetSequenceNumberAccounts() { Authority = wallet.Account.PublicKey, SequenceAccount = newAcc }, sequence);
 
             var tx = rpc.SendTransaction("");
-            
+
 
             Console.ReadLine();
         }
