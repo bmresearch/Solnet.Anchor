@@ -4,14 +4,16 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>Solnet.Anchor.Examples</RootNamespace>
-		<AnchorGenerator>JPv1rCqrhagNNmJVM5J1he7msQ5ybtvE1nNuHpDHMNU</AnchorGenerator>
+		<AnchorGenerator>JPv1rCqrhagNNmJVM5J1he7msQ5ybtvE1nNuHpDHMNU,SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f</AnchorGenerator>
     </PropertyGroup>
 
     <ItemGroup>
       <None Remove="Idl\seqenforcer.json" />
+      <None Remove="Idl\switchboard.json" />
     </ItemGroup>
 
     <ItemGroup>
+		<AdditionalFiles Include="Idl\switchboard.json" Address="SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f" />
 		<AdditionalFiles Include="Idl\seqenforcer.json" Address="GDDMwNyyx8uB6zrqwBFHjLLG3TBYk2F8Az4yrQC5RzMp" AnchorGenerate="true" />
 		<!--<AdditionalFiles Include="Idl\res.json" Address="blabla" AnchorGenerate="true" />-->
 		<AdditionalFiles Include="Idl\chat.json" />
@@ -23,9 +25,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Solnet.Rpc" Version="6.0.2" />
-		<PackageReference Include="Solnet.Wallet" Version="6.0.2" />
-		<PackageReference Include="Solnet.Programs" Version="6.0.2" />
+		<PackageReference Include="Solnet.Rpc" Version="6.0.3" />
+		<PackageReference Include="Solnet.Wallet" Version="6.0.3" />
+		<PackageReference Include="Solnet.Programs" Version="6.0.3" />
     </ItemGroup>
 
 

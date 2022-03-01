@@ -16,7 +16,5 @@ namespace Solnet.Anchor.Models
 
         [JsonConverter(typeof(IIdlTypeConverter))]
         public IIdlType Type { get; set; }
-
-
     }
 }
