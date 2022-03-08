@@ -31,6 +31,8 @@ namespace Solnet.Anchor
 
         public static readonly SyntaxTokenList PublicStaticModifiers = TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword));
 
+        public static readonly SyntaxTokenList PublicPartialModifiers = TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword));
+
         public static readonly SyntaxTokenList PublicAwaitModifiers = TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AsyncKeyword));
 
         public static readonly SyntaxToken OpenBraceToken = Token(SyntaxKind.OpenBraceToken);
@@ -1616,7 +1618,7 @@ namespace Solnet.Anchor
                     null));
             }
 
-            return SingletonList<MemberDeclarationSyntax>(ClassDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicModifier, Identifier(structIdl.Name.ToPascalCase()), null, null, List<TypeParameterConstraintClauseSyntax>(), List(classMembers)));
+            return SingletonList<MemberDeclarationSyntax>(ClassDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicPartialModifiers, Identifier(structIdl.Name.ToPascalCase()), null, null, List<TypeParameterConstraintClauseSyntax>(), List(classMembers)));
         }
 
         private SyntaxList<MemberDeclarationSyntax> GenerateEnumDeclaration(Idl idl, EnumIdlTypeDefinition enumIdl, bool generateSerialization)
@@ -1799,7 +1801,7 @@ namespace Solnet.Anchor
                             LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(1)))));
 
 
-                    supportClasses.Add(ClassDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicModifier, Identifier(member.Name.ToPascalCase() + "Type"), null, null, List<TypeParameterConstraintClauseSyntax>(), List(fields)));
+                    supportClasses.Add(ClassDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicPartialModifiers, Identifier(member.Name.ToPascalCase() + "Type"), null, null, List<TypeParameterConstraintClauseSyntax>(), List(fields)));
 
                     mainClassProperties.Add(PropertyDeclaration(List<AttributeListSyntax>(), ClientGeneratorDefaultValues.PublicModifier, IdentifierName(member.Name.ToPascalCase() + "Type"), default, Identifier(member.Name.ToPascalCase() + "Value"), ClientGeneratorDefaultValues.PropertyAccessorList));
                 }
@@ -1951,7 +1953,7 @@ namespace Solnet.Anchor
 
             return SingletonList<MemberDeclarationSyntax>(EnumDeclaration(
                 List<AttributeListSyntax>(),
-                ClientGeneratorDefaultValues.PublicModifier,
+                ClientGeneratorDefaultValues.PublicPartialModifiers,
                 Identifier(enumIdl.Name.ToPascalCase() + "Type"),
                 BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(PredefinedType(Token(SyntaxKind.ByteKeyword))))),
                 SeparatedList(enumMembers))).AddRange(supportClasses);
