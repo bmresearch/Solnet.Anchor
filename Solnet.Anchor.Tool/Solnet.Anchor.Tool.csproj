@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
+		<PackageReference Include="Solnet.Rpc" Version="6.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
