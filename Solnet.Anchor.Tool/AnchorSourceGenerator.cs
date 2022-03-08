@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Solnet.Anchor;
+using Solnet.Rpc;
 using System.IO;
 using Solnet.Anchor.Models;
 
@@ -14,22 +15,38 @@ public class AnchorSourceGenerator
 {
     static int Main(string[] args)
     {
-        return Parser.Default.ParseArguments<CommandLineOptions>(args)
+        var parser = new Parser(x => x.CaseInsensitiveEnumValues = true);
+        return parser.ParseArguments<CommandLineOptions>(args)
             .MapResult((CommandLineOptions opts) =>
             {
-                Idl idl = null;
+                string idlStr;
+
                 if(opts.File != null)
                 {
-                    idl = IdlParser.ParseFile(opts.File);
+                    idlStr = File.ReadAllText(opts.File);
                 }
                 else
                 {
-                    idl = IdlParser.ParseProgram(new Solnet.Wallet.PublicKey(opts.Address));
+                    idlStr = IdlRetriever.GetIdl(new(opts.Address), GetRpcClient(opts.Network));
                 }
 
+                if(idlStr == null)
+                {
+                    Console.WriteLine("Unable to read IDL from specified source. exiting");
+                    return -2;
+                }
+
+                if(opts.Json != null)
+                {
+                    File.WriteAllText(opts.Json, idlStr);
+                }
+
+                Idl idl = IdlParser.Parse(idlStr);
+                
                 if(idl == null)
                 {
                     Console.WriteLine("No IDL was generated. exiting");
+                    return -3;
                 }
 
                 idl.DefaultProgramAddress = opts.Address;
@@ -54,11 +71,31 @@ public class AnchorSourceGenerator
                 return 0;
             }); 
     }
+
+    public static IRpcClient GetRpcClient(Network network)
+    => network switch {
+        Network.Devnet => ClientFactory.GetClient(Cluster.DevNet),
+        Network.Testnet => ClientFactory.GetClient(Cluster.TestNet),
+        _ => ClientFactory.GetClient(Cluster.MainNet)
+    };
 }
+
+public enum Network
+{
+    Mainnet,
+    Devnet,
+    Testnet
+}
+
 public class CommandLineOptions
 {
     [Option('a', "address", Group = "source", HelpText = "Anchor Program Address")]
     public string Address { get; set; }
+
+    [Option('n', " network", Group = "source", 
+            HelpText = "Network to fetch address based IDL, default: mainnet (mainnet, devnet, testnet)",
+            Default = Network.Mainnet)]
+    public Network Network { get; set; }
 
 
     [Option('i', "idl", Group = "source", HelpText = "Idl Source file")]
@@ -70,4 +107,7 @@ public class CommandLineOptions
 
     [Option('s', "stdout", Group = "output", HelpText = "Write generated C# code to stdout")]
     public bool StdOut { get; set; }
+
+    [Option('j', "json", Group = "output", HelpText = "File to write IDL json")]
+    public string Json { get; set; }
 }
