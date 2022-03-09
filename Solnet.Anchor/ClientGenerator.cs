@@ -889,6 +889,7 @@ namespace Solnet.Anchor
             //clientMembers.Add(GenerateParseAccount());
             clientMembers.AddRange(GenerateGetAccounts(idl));
             clientMembers.AddRange(GenerateGetAccount(idl));
+            clientMembers.AddRange(GenerateSubscribeAccount(idl));
 
             clientMembers.AddRange(GenerateInstructionBuilderMethods(idl));
 
@@ -1088,6 +1089,205 @@ namespace Solnet.Anchor
         private SimpleNameSyntax Generic(string generic, TypeSyntax t)
         {
             return GenericName(Identifier(generic), TypeArgumentList(SingletonSeparatedList(t)));
+        }
+
+        private MemberDeclarationSyntax GenerateSubscribeAccount(IIdlTypeDefinitionTy type)
+        {
+            var callbackBody =
+                Block(
+                    LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName(type.Name.ToPascalCase()))
+                        .WithVariables(
+                            SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                VariableDeclarator(
+                                    Identifier("parsingResult"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        LiteralExpression(
+                                            SyntaxKind.NullLiteralExpression)))))),
+                    IfStatement(
+                        BinaryExpression(
+                            SyntaxKind.GreaterThanExpression,
+                            ConditionalAccessExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("e"),
+                                    IdentifierName("Value")),
+                                ConditionalAccessExpression(
+                                    MemberBindingExpression(
+                                        IdentifierName("Data")),
+                                    MemberBindingExpression(
+                                        IdentifierName("Count")))),
+                            LiteralExpression(
+                                SyntaxKind.NumericLiteralExpression,
+                                Literal(0))),
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName("parsingResult"),
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName(type.Name.ToPascalCase()),
+                                        IdentifierName("Deserialize")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("Convert"),
+                                                        IdentifierName("FromBase64String")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                ElementAccessExpression(
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        MemberAccessExpression(
+                                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                                            IdentifierName("e"),
+                                                                            IdentifierName("Value")),
+                                                                        IdentifierName("Data")))
+                                                                .WithArgumentList(
+                                                                    BracketedArgumentList(
+                                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                                            Argument(
+                                                                                LiteralExpression(
+                                                                                    SyntaxKind.NumericLiteralExpression,
+                                                                                    Literal(0))))))))))))))))),
+                    ExpressionStatement(
+                        InvocationExpression(
+                            IdentifierName("callback"))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SeparatedList<ArgumentSyntax>(
+                                    new SyntaxNodeOrToken[]{
+                                        Argument(
+                                            IdentifierName("s")),
+                                        Token(SyntaxKind.CommaToken),
+                                        Argument(
+                                            IdentifierName("e")),
+                                        Token(SyntaxKind.CommaToken),
+                                        Argument(
+                                            IdentifierName("parsingResult"))})))));
+
+            var subscriptionStateDeclaration =
+                LocalDeclarationStatement(
+                    VariableDeclaration(
+                        IdentifierName("SubscriptionState"))
+                    .WithVariables(
+                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            VariableDeclarator(
+                                Identifier("res"))
+                            .WithInitializer(
+                                EqualsValueClause(
+                                    AwaitExpression(
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("StreamingRpcClient"),
+                                                IdentifierName("SubscribeAccountInfoAsync")))
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SeparatedList<ArgumentSyntax>(
+                                                    new SyntaxNodeOrToken[]{
+                                                        Argument(
+                                                            IdentifierName("accountAddress")),
+                                                        Token(SyntaxKind.CommaToken),
+                                                        Argument(
+                                                            ParenthesizedLambdaExpression()
+                                                            .WithParameterList(
+                                                                ParameterList(
+                                                                    SeparatedList<ParameterSyntax>(
+                                                                        new SyntaxNodeOrToken[]{
+                                                                            Parameter(
+                                                                                Identifier("s")),
+                                                                            Token(SyntaxKind.CommaToken),
+                                                                            Parameter(
+                                                                                Identifier("e"))})))
+                                                            .WithBlock(callbackBody)),
+                                                        Token(SyntaxKind.CommaToken),
+                                                        Argument(
+                                                            IdentifierName("commitment"))})))))))));
+            
+
+            var methodDeclaration = MethodDeclaration(
+                        GenericName(
+                            Identifier("Task"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    IdentifierName("SubscriptionState")))),
+                        Identifier("Subscribe" + type.Name.ToPascalCase() + "Async"))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.AsyncKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("accountAddress"))
+                                    .WithType(
+                                        PredefinedType(
+                                            Token(SyntaxKind.StringKeyword))),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("callback"))
+                                    .WithType(
+                                        GenericName(
+                                            Identifier("Action"))
+                                        .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                SeparatedList<TypeSyntax>(
+                                                    new SyntaxNodeOrToken[]{
+                                                        IdentifierName("SubscriptionState"),
+                                                        Token(SyntaxKind.CommaToken),
+                                                        QualifiedName(
+                                                            QualifiedName(
+                                                                QualifiedName(
+                                                                    IdentifierName("Solnet"),
+                                                                    IdentifierName("Rpc")),
+                                                                IdentifierName("Messages")),
+                                                            GenericName(
+                                                                Identifier("ResponseValue"))
+                                                            .WithTypeArgumentList(
+                                                                TypeArgumentList(
+                                                                    SingletonSeparatedList<TypeSyntax>(
+                                                                        QualifiedName(
+                                                                            QualifiedName(
+                                                                                QualifiedName(
+                                                                                    IdentifierName("Solnet"),
+                                                                                    IdentifierName("Rpc")),
+                                                                                IdentifierName("Models")),
+                                                                            IdentifierName("AccountInfo")))))),
+                                                        Token(SyntaxKind.CommaToken),
+                                                        IdentifierName(type.Name.ToPascalCase())})))),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("commitment"))
+                                    .WithType(
+                                        IdentifierName("Commitment"))
+                                    .WithDefault(
+                                        EqualsValueClause(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("Commitment"),
+                                                IdentifierName("Finalized"))))})));
+
+            return methodDeclaration
+                    .WithBody(
+                        Block(
+                            subscriptionStateDeclaration,
+                            ReturnStatement(
+                                IdentifierName("res")))
+                    );
         }
 
         private MemberDeclarationSyntax GenerateGetAccount(IIdlTypeDefinitionTy type)
@@ -1313,6 +1513,19 @@ namespace Solnet.Anchor
             foreach (var acc in idl.Accounts)
             {
                 methods.Add(GenerateGetAccounts(idl, acc));
+            }
+
+
+            return methods;
+        }
+        
+        private List<MemberDeclarationSyntax> GenerateSubscribeAccount(Idl idl)
+        {
+            List<MemberDeclarationSyntax> methods = new();
+
+            foreach (var acc in idl.Accounts)
+            {
+                methods.Add(GenerateSubscribeAccount(acc));
             }
 
 
