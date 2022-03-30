@@ -109,13 +109,11 @@ namespace Solnet.Anchor
                 UsingDirective(IdentifierName("Solnet.Wallet")),
                 UsingDirective(IdentifierName(idl.Name.ToPascalCase())),
                 UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Program")),
+                UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Errors"))
             };
 
             if (idl.Accounts != null && idl.Accounts.Length > 0)
                 usings.Add(UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Accounts")));
-
-            if (idl.Errors != null && idl.Errors.Length > 0)
-                usings.Add(UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Errors")));
 
             if (idl.Events != null && idl.Events.Length > 0)
                 usings.Add(UsingDirective(IdentifierName(idl.Name.ToPascalCase() + ".Events")));
@@ -916,12 +914,14 @@ namespace Solnet.Anchor
 
 
             /// {1u, new ProgramError(EnumKind.EnumVariant, "error message)},
-            foreach (var val in idl.Errors)
+            if (idl.Errors != null)
             {
-                var errValue = InitializerExpression(
-                    SyntaxKind.ComplexElementInitializerExpression,
-                    SeparatedList<ExpressionSyntax>(
-                        new SyntaxNodeOrToken[]{
+                foreach (var val in idl.Errors)
+                {
+                    var errValue = InitializerExpression(
+                        SyntaxKind.ComplexElementInitializerExpression,
+                        SeparatedList<ExpressionSyntax>(
+                            new SyntaxNodeOrToken[]{
                             LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(val.Code)),
                             Token(SyntaxKind.CommaToken),
                             ObjectCreationExpression(
@@ -942,8 +942,9 @@ namespace Solnet.Anchor
                                             LiteralExpression(
                                                 SyntaxKind.StringLiteralExpression,
                                                 Literal(val.Msg)))})), default)}));
-                syntaxNodeOrTokens.Add(errValue);
-                syntaxNodeOrTokens.Add(Token(SyntaxKind.CommaToken));
+                    syntaxNodeOrTokens.Add(errValue);
+                    syntaxNodeOrTokens.Add(Token(SyntaxKind.CommaToken));
+                }
             }
 
 
@@ -2189,7 +2190,7 @@ namespace Solnet.Anchor
         {
             SyntaxNodeOrTokenList errors = new SyntaxNodeOrTokenList();
 
-            for (int i = 0; i < idl.Errors.Length; i++)
+            for (int i = 0; i < idl.Errors?.Length; i++)
             {
                 var dec = EnumMemberDeclaration(Identifier(idl.Errors[i].Name.ToPascalCase()))
                     .WithEqualsValue(
