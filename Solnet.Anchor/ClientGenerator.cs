@@ -76,11 +76,6 @@ namespace Solnet.Anchor
 
             var st = SyntaxTree(CompilationUnit(List<ExternAliasDirectiveSyntax>(), List(GenerateUsings(idl)), List<AttributeListSyntax>(), SingletonList<MemberDeclarationSyntax>(namespaceDeclaration)));
 
-
-            var res = st.GetRoot().NormalizeWhitespace().ToFullString();
-
-            res.ToPascalCase();
-
             return st;
         }
 
@@ -942,8 +937,8 @@ namespace Solnet.Anchor
                                             LiteralExpression(
                                                 SyntaxKind.StringLiteralExpression,
                                                 Literal(val.Msg)))})), default)}));
-                    syntaxNodeOrTokens.Add(errValue);
-                    syntaxNodeOrTokens.Add(Token(SyntaxKind.CommaToken));
+                    syntaxNodeOrTokens = syntaxNodeOrTokens.Add(errValue);
+                    syntaxNodeOrTokens = syntaxNodeOrTokens.Add(Token(SyntaxKind.CommaToken));
                 }
             }
 
@@ -2198,9 +2193,9 @@ namespace Solnet.Anchor
                             LiteralExpression(
                                 SyntaxKind.NumericLiteralExpression,
                                 Literal(idl.Errors[i].Code))));
-                errors.Add(dec);
+                errors = errors.Add(dec);
 
-                if (i < idl.Errors.Length - 1) errors.Add(Token(SyntaxKind.CommaToken));
+                if (i < idl.Errors.Length - 1) errors = errors.Add(Token(SyntaxKind.CommaToken));
             }
 
             var errorsEnum = EnumDeclaration(idl.NamePascalCase + "ErrorKind")
