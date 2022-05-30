@@ -2153,7 +2153,7 @@ namespace Solnet.Anchor
                     null));
 
             supportClasses.Add(ClassDeclaration(List<AttributeListSyntax>(),
-                ClientGeneratorDefaultValues.PublicModifier,
+                ClientGeneratorDefaultValues.PublicPartialModifiers,
                 Identifier(enumIdl.Name.ToPascalCase()),
                 null,
                 null,
@@ -2162,7 +2162,7 @@ namespace Solnet.Anchor
 
             return SingletonList<MemberDeclarationSyntax>(EnumDeclaration(
                 List<AttributeListSyntax>(),
-                ClientGeneratorDefaultValues.PublicPartialModifiers,
+                ClientGeneratorDefaultValues.PublicModifier,
                 Identifier(enumIdl.Name.ToPascalCase() + "Type"),
                 BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(PredefinedType(Token(SyntaxKind.ByteKeyword))))),
                 SeparatedList(enumMembers))).AddRange(supportClasses);
