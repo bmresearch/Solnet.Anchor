@@ -719,6 +719,11 @@ namespace Solnet.Anchor
                     IdentifierName("offset"),
                     LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(1)))));
 
+                if (optionalType.ValuesType is IdlValueType 
+                    || (optionalType.ValuesType is IdlDefined d 
+                        && definedTypes.FirstOrDefault(x => x.Name == d.TypeName) is EnumIdlTypeDefinition e 
+                        && e.IsPureEnum()))
+                {
                 conditionBody.AddRange(GenerateArgSerializationSyntaxList(
                     definedTypes,
                     optionalType.ValuesType,
@@ -726,6 +731,15 @@ namespace Solnet.Anchor
                         SyntaxKind.SimpleMemberAccessExpression,
                         identifierNameSyntax,
                         IdentifierName("Value"))));
+                }
+                else
+                {
+                    conditionBody.AddRange(GenerateArgSerializationSyntaxList(
+                        definedTypes,
+                        optionalType.ValuesType,
+                        identifierNameSyntax));
+                }
+                
 
                 var elseBody = Block(
                     ExpressionStatement(InvocationExpression(
