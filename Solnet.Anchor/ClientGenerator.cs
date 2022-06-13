@@ -306,220 +306,225 @@ namespace Solnet.Anchor
         {
             List<StatementSyntax> syntaxes = new();
 
-            if (type is IdlDefined definedType)
+            switch (type)
             {
-                if (!IsSimpleEnum(definedTypes, definedType.TypeName))
-                {
-                    var tmpName = identifierNameSyntax.ToString().ToCamelCase().ToCamelCase().Replace(".", null).Replace("[", null).Replace("]", null);
-                    //tipo.Deserialize(_data, offset, out var bla);
-                    //dest.prop = bla;
-                    syntaxes.Add(ExpressionStatement(AssignmentExpression(
-                        SyntaxKind.AddAssignmentExpression,
-                        IdentifierName("offset"),
-                        InvocationExpression(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName(definedType.TypeName),
-                                IdentifierName("Deserialize")),
-                            ArgumentList(SeparatedList(new ArgumentSyntax[]
-                            {
-                                Argument(IdentifierName("_data")),
-                                Argument(IdentifierName("offset")),
-                                Argument(null, Token(SyntaxKind.OutKeyword), DeclarationExpression(IdentifierName("var"), SingleVariableDesignation(Identifier(tmpName))))
+                case IdlDefined definedType when !IsSimpleEnum(definedTypes, definedType.TypeName):
+                    {
+                        string tmpName = identifierNameSyntax.ToString().ToCamelCase().ToCamelCase().
+                            Replace(".", null).Replace("[", null).Replace("]", null);
+                        //type.Deserialize(_data, offset, out var bla);
+                        //dest.prop = bla;
+                        syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                            SyntaxKind.AddAssignmentExpression,
+                            IdentifierName("offset"),
+                            InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName(definedType.TypeName),
+                                    IdentifierName("Deserialize")),
+                                ArgumentList(SeparatedList(new ArgumentSyntax[]
+                                {
+                                    Argument(IdentifierName("_data")),
+                                    Argument(IdentifierName("offset")),
+                                    Argument(null, Token(SyntaxKind.OutKeyword), DeclarationExpression(IdentifierName("var"), SingleVariableDesignation(Identifier(tmpName))))
 
-                            }))))));
+                                }))))));
 
-                    syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, identifierNameSyntax, IdentifierName(tmpName))));
-                }
-                else
-                {
+                        syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, identifierNameSyntax, IdentifierName(tmpName))));
+                        break;
+                    }
+                case IdlDefined definedType:
                     syntaxes.Add(ExpressionStatement(AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         identifierNameSyntax,
                         CastExpression(IdentifierName(definedType.TypeName),
                             InvocationExpression(MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("_data"),
-                                IdentifierName("GetU8")),
-                            ArgumentList(SeparatedList(new ArgumentSyntax[]
-                            {
-                                Argument(IdentifierName("offset"))
-                            })))))));
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("_data"),
+                                    IdentifierName("GetU8")),
+                                ArgumentList(SeparatedList(new ArgumentSyntax[]
+                                {
+                                    Argument(IdentifierName("offset"))
+                                })))))));
 
                     syntaxes.Add(ExpressionStatement(AssignmentExpression(
                         SyntaxKind.AddAssignmentExpression,
                         IdentifierName("offset"),
                         LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(1)))));
-                }
-            }
-            else if (type is IdlValueType valueType)
-            {
-                var (serializerFunctionName, typeSize) = GetDeserializationValuesForValueType(valueType);
+                    break;
+                case IdlValueType valueType:
+                    (IdentifierNameSyntax serializerFunctionName, int typeSize) = GetDeserializationValuesForValueType(valueType);
 
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                    syntaxes.Add(ExpressionStatement(AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         identifierNameSyntax,
                         InvocationExpression(MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("_data"),
-                            serializerFunctionName),
-                        ArgumentList(SeparatedList(new ArgumentSyntax[]
-                        {
-                            Argument(IdentifierName("offset"))
-                        }))))));
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("_data"),
+                                serializerFunctionName),
+                            ArgumentList(SeparatedList(new ArgumentSyntax[]
+                            {
+                                Argument(IdentifierName("offset"))
+                            }))))));
 
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(
-                    SyntaxKind.AddAssignmentExpression,
-                    IdentifierName("offset"),
-                    LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(typeSize)))));
-            }
-            else if (type is IdlString str)
-            {
-                var tmpName = identifierNameSyntax.ToString().ToCamelCase().ToCamelCase().Replace(".", null).Replace("[", null).Replace("]", null);
-
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(
-                    SyntaxKind.AddAssignmentExpression,
-                    IdentifierName("offset"),
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("_data"),
-                            IdentifierName("GetBorshString")),
-                        ArgumentList(SeparatedList(new ArgumentSyntax[]
-                        {
-                                Argument(IdentifierName("offset")),
-                                Argument(null, Token(SyntaxKind.OutKeyword), DeclarationExpression(IdentifierName("var"), SingleVariableDesignation(Identifier(tmpName))))
-
-                        }))))));
-
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, identifierNameSyntax, IdentifierName(tmpName))));
-            }
-            else if (type is IdlArray arr)
-            {
-                var lenIdentifier = Identifier(identifierNameSyntax.ToString().ToCamelCase().Replace(".", null).Replace("[", null).Replace("]", null) + "Length");
-                var lenIdExpression = IdentifierName(lenIdentifier);
-
-                ExpressionSyntax lenExpression = arr.Size.HasValue ?
-                    LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(arr.Size.Value)) :
-                    lenIdExpression;
-
-                if (!arr.Size.HasValue)
-                {
-                    syntaxes.Add(LocalDeclarationStatement(VariableDeclaration(PredefinedType(Token(SyntaxKind.UIntKeyword)),
-                    SingletonSeparatedList(VariableDeclarator(lenIdentifier, null,
-                    EqualsValueClause(InvocationExpression(MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("_data"),
-                        IdentifierName("GetU32")),
-                    ArgumentList(SeparatedList(new ArgumentSyntax[]
+                    syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                        SyntaxKind.AddAssignmentExpression,
+                        IdentifierName("offset"),
+                        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(typeSize)))));
+                    break;
+                case IdlString str:
                     {
-                        Argument(IdentifierName("offset"))
-                    })))))))));
+                        string tmpName = identifierNameSyntax.ToString().ToCamelCase().ToCamelCase().
+                            Replace(".", null).Replace("[", null).Replace("]", null);
+
+                        syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                            SyntaxKind.AddAssignmentExpression,
+                            IdentifierName("offset"),
+                            InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("_data"),
+                                    IdentifierName("GetBorshString")),
+                                ArgumentList(SeparatedList(new ArgumentSyntax[]
+                                {
+                                    Argument(IdentifierName("offset")),
+                                    Argument(null, Token(SyntaxKind.OutKeyword), DeclarationExpression(IdentifierName("var"), SingleVariableDesignation(Identifier(tmpName))))
+
+                                }))))));
+
+                        syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, identifierNameSyntax, IdentifierName(tmpName))));
+                        break;
+                    }
+                case IdlArray arr:
+                    {
+                        SyntaxToken lenIdentifier = Identifier(identifierNameSyntax.ToString().ToCamelCase().Replace(".", null).Replace("[", null).Replace("]", null) + "Length");
+                        IdentifierNameSyntax lenIdExpression = IdentifierName(lenIdentifier);
+
+                        ExpressionSyntax lenExpression = arr.Size.HasValue ?
+                            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(arr.Size.Value)) :
+                            lenIdExpression;
+
+                        if (!arr.Size.HasValue)
+                        {
+                            syntaxes.Add(LocalDeclarationStatement(VariableDeclaration(PredefinedType(Token(SyntaxKind.IntKeyword)),
+                                SingletonSeparatedList(VariableDeclarator(lenIdentifier, null,
+                                    EqualsValueClause(CastExpression(
+                                        PredefinedType(
+                                            Token(SyntaxKind.IntKeyword)),
+                                        InvocationExpression(MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("_data"),
+                                                IdentifierName("GetU32")),
+                                            ArgumentList(SeparatedList(new ArgumentSyntax[]
+                                            {
+                                                Argument(IdentifierName("offset"))
+                                            }))))))))));
+
+                            syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"),
+                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(4)))));
+
+
+                        }
+
+                        if (arr.ValuesType is IdlValueType { TypeName: "u8" })
+                        {
+                            syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                identifierNameSyntax,
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("_data"),
+                                        IdentifierName("GetBytes")),
+                                    ArgumentList(SeparatedList(new ArgumentSyntax[]
+                                    {
+                                        Argument(IdentifierName("offset")),
+                                        Argument(lenExpression)
+
+                                    }))))));
+
+                            syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"), lenExpression)));
+                        }
+                        else
+                        {
+                            var tmp = identifierNameSyntax.ToString().ToCamelCase().Replace(".", null).Replace("[", null).Replace("]", null) + "Idx";
+                            var idxToken = Identifier(tmp);
+                            var idxExpression = IdentifierName(idxToken);
+
+                            var iteratorIdxDeclaration = VariableDeclaration(PredefinedType(Token(SyntaxKind.UIntKeyword)), SingletonSeparatedList(VariableDeclarator(idxToken, null,
+                                EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))))));
+
+                            var condition = BinaryExpression(SyntaxKind.LessThanExpression, idxExpression, lenExpression);
+
+                            var increment = SingletonSeparatedList<ExpressionSyntax>(PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, idxExpression));
+
+                            var typeSyntax = (ArrayTypeSyntax)GetTypeSyntax(type);
+
+                            syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, identifierNameSyntax, ArrayCreationExpression(FixArrayCreationSize(typeSyntax, lenExpression)))));
+
+                            var elementAccessExpression = ElementAccessExpression(identifierNameSyntax, BracketedArgumentList(SingletonSeparatedList(Argument(idxExpression))));
+
+                            syntaxes.Add(ForStatement(iteratorIdxDeclaration, SeparatedList<ExpressionSyntax>(), condition, increment, Block(GenerateDeserializationSyntaxList(definedTypes, arr.ValuesType, elementAccessExpression))));
+                        }
+
+                        break;
+                    }
+                case IdlBigInt bi:
+                    {
+                        bool isSigned = bi.TypeName == "i128";
+
+                        syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            identifierNameSyntax,
+                            InvocationExpression(MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("_data"),
+                                    IdentifierName("GetBigInt")),
+                                ArgumentList(SeparatedList(new ArgumentSyntax[]
+                                {
+                                    Argument(IdentifierName("offset")),
+                                    Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(16))),
+                                    Argument(LiteralExpression(isSigned ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression))
+                                }))))));
+
+                        syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"),
+                            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(16)))));
+                        break;
+                    }
+                case IdlPublicKey:
+                    syntaxes.Add(ExpressionStatement(AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        identifierNameSyntax,
+                        InvocationExpression(MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("_data"),
+                                IdentifierName("GetPubKey")),
+                            ArgumentList(SeparatedList(new ArgumentSyntax[]
+                            {
+                                Argument(IdentifierName("offset"))
+                            }))))));
 
                     syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"),
-                    LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(4)))));
-
-
-                }
-
-                if (arr.ValuesType is IdlValueType innerType && (innerType.TypeName == "u8"))
-                {
-                    syntaxes.Add(ExpressionStatement(AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    identifierNameSyntax,
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("_data"),
-                            IdentifierName("GetBytes")),
-                        ArgumentList(SeparatedList(new ArgumentSyntax[]
-                        {
-                                Argument(IdentifierName("offset")),
-                                Argument(lenExpression)
-
-                        }))))));
-
-                    syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"), lenExpression)));
-                }
-                else
-                {
-                    var tmp = identifierNameSyntax.ToString().ToCamelCase().Replace(".", null).Replace("[", null).Replace("]", null) + "Idx";
-                    var idxToken = Identifier(tmp);
-                    var idxExpression = IdentifierName(idxToken);
-
-                    var iteratorIdxDeclaration = VariableDeclaration(PredefinedType(Token(SyntaxKind.UIntKeyword)), SingletonSeparatedList(VariableDeclarator(idxToken, null,
-                    EqualsValueClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))))));
-
-                    var condition = BinaryExpression(SyntaxKind.LessThanExpression, idxExpression, lenExpression);
-
-                    var increment = SingletonSeparatedList<ExpressionSyntax>(PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, idxExpression));
-
-                    var typeSyntax = (ArrayTypeSyntax)GetTypeSyntax(type);
-
-                    syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, identifierNameSyntax, ArrayCreationExpression(FixArrayCreationSize(typeSyntax, lenExpression)))));
-
-                    var elementAccessExpression = ElementAccessExpression(identifierNameSyntax, BracketedArgumentList(SingletonSeparatedList(Argument(idxExpression))));
-
-                    syntaxes.Add(ForStatement(iteratorIdxDeclaration, SeparatedList<ExpressionSyntax>(), condition, increment, Block(GenerateDeserializationSyntaxList(definedTypes, arr.ValuesType, elementAccessExpression))));
-                }
-
-            }
-            else if (type is IdlBigInt bi)
-            {
-                bool isSigned = bi.TypeName == "i128";
-
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        identifierNameSyntax,
-                        InvocationExpression(MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("_data"),
-                            IdentifierName("GetBigInt")),
-                        ArgumentList(SeparatedList(new ArgumentSyntax[]
-                        {
-                            Argument(IdentifierName("offset")),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(16))),
-                            Argument(LiteralExpression(isSigned ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression))
-                        }))))));
-
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"),
-                    LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(16)))));
-            }
-            else if (type is IdlPublicKey)
-            {
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        identifierNameSyntax,
-                        InvocationExpression(MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("_data"),
-                            IdentifierName("GetPubKey")),
-                        ArgumentList(SeparatedList(new ArgumentSyntax[]
-                        {
-                                Argument(IdentifierName("offset"))
-                        }))))));
-
-                syntaxes.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.AddAssignmentExpression, IdentifierName("offset"),
-                    LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(32)))));
-            }
-            else if (type is IdlOptional optionalType)
-            {
-                var cond = InvocationExpression(MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("_data"),
-                            IdentifierName("GetBool")),
-                        ArgumentList(SeparatedList(new ArgumentSyntax[]
-                        {
+                        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(32)))));
+                    break;
+                case IdlOptional optionalType:
+                    {
+                        var cond = InvocationExpression(MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("_data"),
+                                IdentifierName("GetBool")),
+                            ArgumentList(SeparatedList(new ArgumentSyntax[]
+                            {
                                 Argument(PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, IdentifierName("offset")))
-                        })));
+                            })));
 
-                syntaxes.Add(IfStatement(
-                    cond,
-                    Block(GenerateDeserializationSyntaxList(definedTypes, optionalType.ValuesType, identifierNameSyntax))));
-            }
-            else
-            {
-                throw new Exception("Unexpected type " + type.GetType().FullName);
+                        syntaxes.Add(IfStatement(
+                            cond,
+                            Block(GenerateDeserializationSyntaxList(definedTypes, optionalType.ValuesType, identifierNameSyntax))));
+                        break;
+                    }
+                default:
+                    throw new Exception("Unexpected type " + type.GetType().FullName);
             }
 
             return syntaxes;
@@ -637,7 +642,7 @@ namespace Solnet.Anchor
 
                 // need to create different serialization for u8 arr
 
-                if (arr.ValuesType is IdlValueType innerType && (innerType.TypeName == "u8"))
+                if (arr.ValuesType is IdlValueType { TypeName: "u8" })
                 {
                     syntaxes.Add(ExpressionStatement(InvocationExpression(
                         MemberAccessExpression(
@@ -782,7 +787,8 @@ namespace Solnet.Anchor
                 "i32" => (IdentifierName("WriteS32"), 4),
                 "u64" => (IdentifierName("WriteU64"), 8),
                 "i64" => (IdentifierName("WriteS64"), 8),
-                _ => (IdentifierName("WriteBool"), 1)
+                "bool" => (IdentifierName("WriteBool"), 1),
+                _ => throw new Exception("Unexpected Type.")
             };
 
 
@@ -797,7 +803,8 @@ namespace Solnet.Anchor
                 "i32" => (IdentifierName("GetS32"), 4),
                 "u64" => (IdentifierName("GetU64"), 8),
                 "i64" => (IdentifierName("GetS64"), 8),
-                _ => (IdentifierName("GetBool"), 1)
+                "bool" => (IdentifierName("GetBool"), 1),
+                _ => throw new Exception("Unexpected Type.")
             };
 
         private List<MemberDeclarationSyntax> GenerateAccountsClassSyntaxTree(IIdlAccountItem[] accounts, string v)
@@ -1415,13 +1422,9 @@ namespace Solnet.Anchor
                         }
                         ))))))))));
 
-            /**
-             * 
-             * 
-            if (!res.WasSuccessful || !(res.Result?.Count > 0))
-                return new ProgramAccountsResultWrapper<List<T>>(res);
+            //if (!res.WasSuccessful || !(res.Result?.Count > 0))
+            //    return new ProgramAccountsResultWrapper<List<T>>(res);
 
-             */
 
             var condition = BinaryExpression(SyntaxKind.LogicalOrExpression,
                     PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("res"), IdentifierName("WasSuccessful"))),
@@ -1518,51 +1521,27 @@ namespace Solnet.Anchor
 
         private List<MemberDeclarationSyntax> GenerateGetAccounts(Idl idl)
         {
-            List<MemberDeclarationSyntax> methods = new();
-
-            foreach (var acc in idl.Accounts)
-            {
-                methods.Add(GenerateGetAccounts(idl, acc));
-            }
-
-
-            return methods;
+            return idl.Accounts.Select(acc => GenerateGetAccounts(idl, acc)).ToList();
         }
         
         private List<MemberDeclarationSyntax> GenerateSubscribeAccount(Idl idl)
         {
-            List<MemberDeclarationSyntax> methods = new();
-
-            foreach (var acc in idl.Accounts)
-            {
-                methods.Add(GenerateSubscribeAccount(acc));
-            }
-
-
-            return methods;
+            return idl.Accounts.Select(GenerateSubscribeAccount).ToList();
         }
 
         private List<MemberDeclarationSyntax> GenerateGetAccount(Idl idl)
         {
-            List<MemberDeclarationSyntax> methods = new();
-
-            foreach (var acc in idl.Accounts)
-            {
-                methods.Add(GenerateGetAccount(acc));
-            }
-
-
-            return methods;
+            return idl.Accounts.Select(GenerateGetAccount).ToList();
         }
 
         private MemberDeclarationSyntax GenerateTypesSyntaxTree(Idl idl)
         {
             List<MemberDeclarationSyntax> types = new();
 
-            for (int i = 0; i < idl.Types.Length; i++)
+            foreach (var t in idl.Types)
             {
-                if (IsTypeReferenced(idl, idl.Types[i]))
-                    types.AddRange(GenerateTypeDeclaration(idl, idl.Types[i], true));
+                if (IsTypeReferenced(idl, t))
+                    types.AddRange(GenerateTypeDeclaration(idl, t, true));
             }
 
             return NamespaceDeclaration(IdentifierName("Types"), List<ExternAliasDirectiveSyntax>(), List<UsingDirectiveSyntax>(), List(types));
@@ -1572,23 +1551,17 @@ namespace Solnet.Anchor
         {
             string typeName = idlTypeDefinitionTy.Name;
 
-            foreach (var type in idl.Types)
+            if (idl.Types.Any(type => IsTypeReferenced(type, typeName)))
             {
-                if (IsTypeReferenced(type, typeName)) return true;
+                return true;
             }
 
-            foreach (var type in idl.Accounts)
+            if (idl.Accounts.Any(type => IsTypeReferenced(type, typeName)))
             {
-                if (IsTypeReferenced(type, typeName)) return true;
+                return true;
             }
 
-            foreach (var instr in idl.Instructions)
-            {
-                foreach (var arg in instr.Args)
-                    if (IsTypeReferenced(arg.Type, typeName)) return true;
-            }
-
-            return false;
+            return idl.Instructions.SelectMany(instr => instr.Args).Any(arg => IsTypeReferenced(arg.Type, typeName));
         }
 
         private bool IsTypeReferenced(IIdlTypeDefinitionTy typeToCheck, string typeName)
@@ -1647,7 +1620,7 @@ namespace Solnet.Anchor
                 IdlPublicKey => IdentifierName("PublicKey"),
                 IdlString => PredefinedType(Token(SyntaxKind.StringKeyword)),
                 IdlValueType v => PredefinedType(Token(GetTokenForValueType(v))),
-                _ => throw new Exception("Unexpected type.")
+                _ => throw new Exception("Unexpected Type.")
             };
 
         private SyntaxKind GetTokenForValueType(IdlValueType idlValueType)
@@ -1662,7 +1635,7 @@ namespace Solnet.Anchor
                 "u64" => SyntaxKind.ULongKeyword,
                 "i64" => SyntaxKind.LongKeyword,
                 "bool" => SyntaxKind.BoolKeyword,
-                _ => throw new Exception("Unexpected type.")
+                _ => throw new Exception("Unexpected Type.")
             };
 
         private List<MemberDeclarationSyntax> GenerateAccountDiscriminator(StructIdlTypeDefinition structIdl)
