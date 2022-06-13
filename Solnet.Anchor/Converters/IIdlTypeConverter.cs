@@ -23,7 +23,7 @@ namespace Solnet.Anchor.Converters
                 {
                     "string" => new IdlString(),
                     "publicKey" => new IdlPublicKey(),
-                    "bytes" => new IdlArray() { ValuesType = new IdlValueType() { TypeName = "byte" } },
+                    "bytes" => new IdlArray() { ValuesType = new IdlValueType() { TypeName = "u8" } },
                     "u128" or "i128" => new IdlBigInt() { TypeName = typeName },
                     _ => new IdlValueType() { TypeName = typeName }
                 };

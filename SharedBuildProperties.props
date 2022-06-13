@@ -1,22 +1,22 @@
 <Project DefaultTargets="Build"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<Product>Solnet</Product>
-		<Version>0.2.4</Version>
-		<Copyright>Copyright 2022 &#169; Solnet</Copyright>
-		<Authors>blockmountain</Authors>
-		<PublisherName>blockmountain</PublisherName>
-		<RepositoryUrl>https://github.com/bmresearch/Solnet.Anchor</RepositoryUrl>
-		<LangVersion>latest</LangVersion>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageIcon>icon.png</PackageIcon>
-		<PackageDescription>Solnet.Anchor is a set of tools to integrate with Solana Anchor programs.</PackageDescription>
-		<PackageTags>solana;solnet;sol;net6;spl;anchor</PackageTags>
-		<PackageReleaseNotes>https://github.com/bmresearch/Solnet.Anchor/releases</PackageReleaseNotes>
-		<RepositoryType>git</RepositoryType>
-	</PropertyGroup>
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Product>Solnet</Product>
+        <Version>0.2.5</Version>
+        <Copyright>Copyright 2022 &#169; Solnet</Copyright>
+        <Authors>blockmountain</Authors>
+        <PublisherName>blockmountain</PublisherName>
+        <RepositoryUrl>https://github.com/bmresearch/Solnet.Anchor</RepositoryUrl>
+        <LangVersion>latest</LangVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageDescription>Solnet.Anchor is a set of tools to integrate with Solana Anchor programs.</PackageDescription>
+        <PackageTags>solana;solnet;sol;net6;spl;anchor</PackageTags>
+        <PackageReleaseNotes>https://github.com/bmresearch/Solnet.Anchor/releases</PackageReleaseNotes>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
 
-	<ItemGroup Label="PackageIcon">
-		<None Include="$(MSBuildThisFileDirectory)/assets/icon.png" Pack="true" Visible="false" PackagePath=""/>
-	</ItemGroup>
+    <ItemGroup Label="PackageIcon">
+        <None Include="$(MSBuildThisFileDirectory)/assets/icon.png" Pack="true" Visible="false" PackagePath=""/>
+    </ItemGroup>
 </Project>

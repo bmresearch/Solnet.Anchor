@@ -724,13 +724,13 @@ namespace Solnet.Anchor
                         && definedTypes.FirstOrDefault(x => x.Name == d.TypeName) is EnumIdlTypeDefinition e 
                         && e.IsPureEnum()))
                 {
-                conditionBody.AddRange(GenerateArgSerializationSyntaxList(
-                    definedTypes,
-                    optionalType.ValuesType,
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        identifierNameSyntax,
-                        IdentifierName("Value"))));
+                    conditionBody.AddRange(GenerateArgSerializationSyntaxList(
+                        definedTypes,
+                        optionalType.ValuesType,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            identifierNameSyntax,
+                            IdentifierName("Value"))));
                 }
                 else
                 {
@@ -1647,7 +1647,7 @@ namespace Solnet.Anchor
                 IdlPublicKey => IdentifierName("PublicKey"),
                 IdlString => PredefinedType(Token(SyntaxKind.StringKeyword)),
                 IdlValueType v => PredefinedType(Token(GetTokenForValueType(v))),
-                _ => throw new Exception("huh wat")
+                _ => throw new Exception("Unexpected type.")
             };
 
         private SyntaxKind GetTokenForValueType(IdlValueType idlValueType)
@@ -1661,7 +1661,8 @@ namespace Solnet.Anchor
                 "i32" => SyntaxKind.IntKeyword,
                 "u64" => SyntaxKind.ULongKeyword,
                 "i64" => SyntaxKind.LongKeyword,
-                _ => SyntaxKind.BoolKeyword
+                "bool" => SyntaxKind.BoolKeyword,
+                _ => throw new Exception("Unexpected type.")
             };
 
         private List<MemberDeclarationSyntax> GenerateAccountDiscriminator(StructIdlTypeDefinition structIdl)
