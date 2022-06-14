@@ -57,15 +57,15 @@ namespace Solnet.Anchor
         {
             List<MemberDeclarationSyntax> members = new();
 
-            if (idl.Accounts != null && idl.Accounts.Length > 0)
+            if (idl.Accounts is { Length: > 0 })
                 members.Add(GenerateAccountsSyntaxTree(idl));
 
             members.Add(GenerateErrorsSyntaxTree(idl));
 
-            if (idl.Events != null && idl.Events.Length > 0)
+            if (idl.Events is { Length: > 0 })
                 members.Add(GenerateEventsSyntaxTree(idl));
 
-            if (idl.Types != null && idl.Types.Length > 0)
+            if (idl.Types is { Length: > 0 })
                 members.Add(GenerateTypesSyntaxTree(idl));
 
             members.Add(GenerateClientSyntaxTree(idl));
@@ -898,12 +898,14 @@ namespace Solnet.Anchor
 
             var className = idl.Name.ToPascalCase() + "Client";
 
-            //clientMembers.AddRange(GenerateFields());
             clientMembers.Add(GenerateConstructor(idl, className));
-            //clientMembers.Add(GenerateParseAccount());
-            clientMembers.AddRange(GenerateGetAccounts(idl));
-            clientMembers.AddRange(GenerateGetAccount(idl));
-            clientMembers.AddRange(GenerateSubscribeAccount(idl));
+            
+            if (idl.Accounts is { Length: > 0 })
+            {
+                clientMembers.AddRange(GenerateGetAccounts(idl));
+                clientMembers.AddRange(GenerateGetAccount(idl));
+                clientMembers.AddRange(GenerateSubscribeAccount(idl));
+            }
 
             clientMembers.AddRange(GenerateInstructionBuilderMethods(idl));
 
