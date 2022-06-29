@@ -10,6 +10,8 @@ namespace Solnet.Anchor.Models.Accounts
     public class IdlAccount : IIdlAccountItem
     {
         public string Name { get; set; }
+        
+        public string Description { get; set; }
 
         public string NamePascalCase => Name.ToPascalCase();
 
