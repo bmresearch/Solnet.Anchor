@@ -18,8 +18,12 @@ namespace Solnet.Anchor.Converters
 
             List<IIdlAccountItem> accountItems = new List<IIdlAccountItem>();
 
-            while (reader.Read() && reader.TokenType == JsonTokenType.StartObject)
+            reader.Read();
+            
+
+            while (reader.TokenType == JsonTokenType.StartObject)
             {
+                Utf8JsonReader readerCopy = reader;
                 //IIdlAccountItem acc = 
 
                 reader.Read();
@@ -49,40 +53,18 @@ namespace Solnet.Anchor.Converters
                 }
                 else
                 {
-                    IdlAccount account = new();
-                    account.Name = name;
+                    IdlAccount account = JsonSerializer.Deserialize<IdlAccount>(ref readerCopy, options);
 
-                    if ("isMut" != propertyName) throw new JsonException("Unexpected error value.");
-                    account.IsMut = reader.GetBoolean();
-
-                    reader.Read();
-
-                    if (reader.TokenType != JsonTokenType.PropertyName) throw new JsonException("Unexpected error value.");
-
-                    propertyName = reader.GetString();
-                    reader.Read();
-                    if ("isSigner" != propertyName) throw new JsonException("Unexpected error value.");
-                    account.IsSigner = reader.GetBoolean();
                     accountItems.Add(account);
-
-                    reader.Read();
-
-                    if(reader.TokenType == JsonTokenType.PropertyName)
-                    {
-                        var prop = reader.GetString();
-
-                        if ("pda" != prop) throw new JsonException("Unexpected property.");
-
-                        reader.Read();
-
-                        account.Pda = JsonSerializer.Deserialize<IdlPda>(ref reader, options);
-                        reader.Read();
-                    }
+                    
+                    reader = readerCopy;
                 }
 
                 // object end
                 if(reader.TokenType != JsonTokenType.EndObject)
                     reader.Read();
+                reader.Read();
+                
             }
             //array end
             //reader.Read();
